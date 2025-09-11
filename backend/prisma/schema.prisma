@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  password    String
+  avatarUrl   String?
+  lastSeen    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  threadsA    Thread[] @relation("userA")
+  threadsB    Thread[] @relation("userB")
+  messages    Message[]
+  contacts    Contact[] @relation("owner")
+  contactOf   Contact[] @relation("contact")
+  
+  @@map("users")
+}
+
+model Thread {
+  id            Int      @id @default(autoincrement())
+  userAId       Int
+  userBId       Int
+  lastMessageId Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  userA         User     @relation("userA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB         User     @relation("userB", fields: [userBId], references: [id], onDelete: Cascade)
+  messages      Message[]
+  lastMessage   Message? @relation("ThreadLastMessage", fields: [lastMessageId], references: [id])
+  
+  @@unique([userAId, userBId])
+  @@map("threads")
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  threadId   Int
+  senderId   Int
+  content    String
+  type       String   @default("text") // text | assistant
+  status     String   @default("sent") // sent | delivered | read
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  thread     Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender     User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  threadLastMessage Thread[] @relation("ThreadLastMessage")
+  
+  @@index([threadId, createdAt])
+  @@map("messages")
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  ownerId   Int
+  contactId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  owner     User     @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  contact   User     @relation("contact", fields: [contactId], references: [id], onDelete: Cascade)
+  
+  @@unique([ownerId, contactId])
+  @@map("contacts")
+}
