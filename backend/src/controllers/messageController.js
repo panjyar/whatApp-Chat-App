@@ -70,6 +70,7 @@ export const sendMessage = async (req, res) => {
 
     const { threadId } = req.params;
     const { content } = req.body;
+    const file = req.file;
     const threadIdInt = parseInt(threadId);
 
     if (isNaN(threadIdInt)) {
@@ -91,15 +92,27 @@ export const sendMessage = async (req, res) => {
       return res.status(404).json({ error: 'Thread not found' });
     }
 
+    // Prepare message data
+    const messageData = {
+      threadId: threadIdInt,
+      senderId: req.user.id,
+      content: content || '',
+      status: 'sent'
+    };
+
+    // Handle file upload
+    if (file) {
+      messageData.type = 'media';
+      messageData.mediaUrl = `/uploads/${file.filename}`;
+      messageData.mediaType = file.mimetype;
+      messageData.fileName = file.originalname;
+    } else {
+      messageData.type = 'text';
+    }
+
     // Create message
     const message = await prisma.message.create({
-      data: {
-        threadId: threadIdInt,
-        senderId: req.user.id,
-        content,
-        type: 'text',
-        status: 'sent'
-      },
+      data: messageData,
       include: {
         sender: {
           select: {

@@ -1,6 +1,6 @@
 // src/components/ChatWindow/ChatWindow.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, MoreVertical } from 'lucide-react';
+import { Bot, MoreVertical, X } from 'lucide-react';
 import { threadAPI } from '../../api/api';
 import { useSocket } from '../../contexts/SocketContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,7 +13,10 @@ export default function ChatWindow({ thread }) {
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(null);
   const [showAIPrompt, setShowAIPrompt] = useState(false);
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const optionsMenuRef = useRef(null);
   const { socket } = useSocket();
   const { user } = useAuth();
 
@@ -77,13 +80,44 @@ export default function ChatWindow({ thread }) {
     }
   };
 
-  const handleSendMessage = async (content) => {
+  // Close options menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (optionsMenuRef.current && !optionsMenuRef.current.contains(event.target)) {
+        setShowOptionsMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSendMessage = async (messageData) => {
     try {
+      const { content, attachments } = messageData;
+      
+      // Handle attachments first
+      const uploadedFiles = await Promise.all(
+        attachments.map(async (attachment) => {
+          const formData = new FormData();
+          formData.append('file', attachment.file);
+          // TODO: Implement file upload API endpoint
+          // const response = await api.post('/files/upload', formData);
+          // return response.data.url;
+          return URL.createObjectURL(attachment.file); // Temporary for demo
+        })
+      );
+
       // Optimistically add message
       const tempMessage = {
         id: Date.now(),
         content,
-        type: 'text',
+        attachments: uploadedFiles.map((url, index) => ({
+          url,
+          type: attachments[index].type,
+          name: attachments[index].name
+        })),
+        type: attachments.length > 0 ? 'media' : 'text',
         status: 'sending',
         createdAt: new Date().toISOString(),
         sender: user
@@ -94,7 +128,8 @@ export default function ChatWindow({ thread }) {
       if (socket) {
         socket.emit('message:send', {
           threadId: thread.id,
-          content
+          content,
+          attachments: uploadedFiles
         });
       }
 
@@ -118,10 +153,33 @@ export default function ChatWindow({ thread }) {
 
   const handleAIRequest = async (prompt) => {
     try {
+      setAiLoading(true);
       const response = await threadAPI.askAI(thread.id, prompt);
       // AI response will come through socket as a regular message
     } catch (error) {
       console.error('Failed to get AI response:', error);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleClearChat = async () => {
+    try {
+      await threadAPI.clearMessages(thread.id);
+      setMessages([]);
+      setShowOptionsMenu(false);
+    } catch (error) {
+      console.error('Failed to clear chat:', error);
+    }
+  };
+
+  const handleBlockUser = async () => {
+    try {
+      await threadAPI.blockUser(thread.otherUser.id);
+      setShowOptionsMenu(false);
+      // Handle UI update for blocked user
+    } catch (error) {
+      console.error('Failed to block user:', error);
     }
   };
 
@@ -183,9 +241,44 @@ export default function ChatWindow({ thread }) {
             >
               <Bot className="h-5 w-5" />
             </button>
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-              <MoreVertical className="h-5 w-5" />
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <MoreVertical className="h-5 w-5" />
+              </button>
+
+              {showOptionsMenu && (
+                <div 
+                  ref={optionsMenuRef}
+                  className="absolute right-0 top-12 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                >
+                  <button
+                    onClick={() => setShowAIPrompt(true)}
+                    disabled={aiLoading}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2"
+                  >
+                    <Bot className="h-4 w-4" />
+                    <span>{aiLoading ? 'AI thinking...' : 'Ask AI Assistant'}</span>
+                  </button>
+                  <button
+                    onClick={handleClearChat}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 text-yellow-600"
+                  >
+                    <X className="h-4 w-4" />
+                    <span>Clear Chat</span>
+                  </button>
+                  <button
+                    onClick={handleBlockUser}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 text-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                    <span>Block User</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

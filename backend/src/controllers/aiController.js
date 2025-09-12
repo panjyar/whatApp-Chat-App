@@ -7,26 +7,93 @@ export const askAIValidation = [
 
 // Mock AI service - replace with actual AI provider
 const generateAIResponse = async (prompt, context) => {
-  // This is a mock implementation
-  // In production, replace with actual AI service call
-  const responses = [
-    "That's an interesting point! Let me think about that...",
-    "I understand what you're saying. Here's my perspective:",
-    "Thanks for sharing that with me. I'd like to add that...",
-    "I see where you're coming from. What if we consider...",
-    "That's a great question! Based on what you've told me...",
-    "I appreciate you bringing this up. My thoughts are...",
-    "That makes a lot of sense. I would also suggest...",
-    "Interesting perspective! I think we should also consider..."
-  ];
+  // Get conversation context from recent messages
+  const conversationContext = context
+    .reverse()
+    .map(msg => `${msg.sender.name}: ${msg.content}`)
+    .join('\n');
+
+  // Generate response based on prompt type
+  let response;
   
-  // Simple mock - in reality, you'd call an AI service
-  const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-  
+  if (prompt.toLowerCase().includes('summarize')) {
+    response = 'Here\'s a summary of the recent conversation: ' + 
+      summarizeConversation(conversationContext);
+  } else if (prompt.toLowerCase().includes('suggest') || prompt.toLowerCase().includes('help')) {
+    response = generateSuggestion(prompt, conversationContext);
+  } else if (prompt.toLowerCase().includes('translate')) {
+    response = 'Translation feature coming soon! For now, I can help rephrase messages.';
+  } else {
+    response = generateContextualResponse(prompt, conversationContext);
+  }
+
   return {
-    content: `${randomResponse} (AI Assistant)`,
+    content: response,
     type: 'assistant'
   };
+};
+
+// Helper functions for different types of AI responses
+const summarizeConversation = (context) => {
+  const lines = context.split('\n');
+  if (lines.length <= 2) return 'The conversation just started.';
+  
+  return 'The conversation involves ' + 
+    [...new Set(lines.map(l => l.split(':')[0]))].join(' and ') +
+    ' discussing ' + (context.length > 100 ? context.slice(-100) : context);
+};
+
+const generateSuggestion = (prompt, context) => {
+  const suggestions = [
+    "Based on the conversation, you might want to discuss...",
+    "Consider asking about...",
+    "You could share your thoughts on...",
+    "This might be a good time to bring up...",
+  ];
+  
+  // Add keywords from context
+  const keywords = extractKeywords(context);
+  return suggestions[Math.floor(Math.random() * suggestions.length)] +
+    ' ' + keywords.join(', ');
+};
+
+const generateContextualResponse = (prompt, context) => {
+  const toneMap = {
+    formal: [
+      "I understand the context. My analysis suggests...",
+      "Given the conversation history, I recommend...",
+      "Based on the discussion, here's my perspective..."
+    ],
+    casual: [
+      "Got it! Here's what I think...",
+      "Cool conversation! My thoughts are...",
+      "I see what you mean. Maybe try..."
+    ]
+  };
+
+  // Detect tone from context
+  const isFormal = context.includes('please') || context.includes('would you') || context.includes('could you');
+  const tone = isFormal ? 'formal' : 'casual';
+  const responses = toneMap[tone];
+  
+  return responses[Math.floor(Math.random() * responses.length)] +
+    ' ' + generateRelevantContent(prompt, context);
+};
+
+const extractKeywords = (text) => {
+  // Simple keyword extraction
+  return text
+    .toLowerCase()
+    .split(/\W+/)
+    .filter(word => word.length > 4)
+    .slice(-3);
+};
+
+const generateRelevantContent = (prompt, context) => {
+  const keywords = extractKeywords(context);
+  return `I notice you're talking about ${keywords.join(', ')}. ` +
+    `This relates to your question about "${prompt}". ` +
+    `Consider exploring how these topics connect.`;
 };
 
 export const askAI = async (req, res) => {

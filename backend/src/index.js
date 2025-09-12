@@ -13,6 +13,7 @@ import userRoutes from './routes/users.js';
 import contactRoutes from './routes/contacts.js';
 import threadRoutes from './routes/threads.js';
 import searchRoutes from './routes/search.js';
+import uploadsRoutes from './routes/uploads.js';
 
 // Import socket handler
 import { initializeSocket } from './sockets/socketHandler.js';
@@ -53,6 +54,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/contacts', contactRoutes);
 app.use('/api/v1/threads', threadRoutes);
 app.use('/api/v1/search', searchRoutes);
+app.use('/api/v1/uploads', uploadsRoutes);
 
 // Socket.IO setup
 const io = new Server(server, {

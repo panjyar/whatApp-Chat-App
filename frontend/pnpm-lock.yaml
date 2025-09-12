@@ -14,6 +14,9 @@ importers:
       clsx:
         specifier: ^2.1.0
         version: 2.1.1
+      emoji-picker-react:
+        specifier: ^4.13.3
+        version: 4.13.3(react@18.3.1)
       lucide-react:
         specifier: ^0.344.0
         version: 0.344.0(react@18.3.1)
@@ -749,8 +752,14 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  electron-to-chromium@1.5.217:
-    resolution: {integrity: sha512-Pludfu5iBxp9XzNl0qq2G87hdD17ZV7h5T4n6rQXDi3nCyloBV3jreE9+8GC6g4X/5yxqVgXEURpcLtM0WS4jA==}
+  electron-to-chromium@1.5.218:
+    resolution: {integrity: sha512-uwwdN0TUHs8u6iRgN8vKeWZMRll4gBkz+QMqdS7DDe49uiK68/UX92lFb61oiFPrpYZNeZIqa4bA7O6Aiasnzg==}
+
+  emoji-picker-react@4.13.3:
+    resolution: {integrity: sha512-aZaxCI72oUQfvZtYuQ9RaYLEwmH3GVgAr5SEeB97Y7gWL06zJ4VTuSl8rAMVY7GNmd0tf/EQ1W2SDuXTl0q9AA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16'
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -810,6 +819,9 @@ packages:
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
+
+  flairup@1.0.0:
+    resolution: {integrity: sha512-IKlE+pNvL2R+kVL1kEhUYqRxVqeFnjiIvHWDMLFXNaqyUdFXQM2wte44EfMYJNHkW16X991t2Zg8apKkhv7OBA==}
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
@@ -1122,8 +1134,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  node-releases@2.0.20:
-    resolution: {integrity: sha512-7gK6zSXEH6neM212JgfYFXe+GmZQM+fia5SsusuBIUgnPheLFBmIPhtFoAQRj8/7wASYQnbDlHPVwY0BefoFgA==}
+  node-releases@2.0.21:
+    resolution: {integrity: sha512-5b0pgg78U3hwXkCM8Z9b2FJdPZlr9Psr9V2gQPESdGHqbntyFJKFW4r5TeWGFzafGY3hzs1JC62VEQMbl1JFkw==}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -2111,8 +2123,8 @@ snapshots:
   browserslist@4.25.4:
     dependencies:
       caniuse-lite: 1.0.30001741
-      electron-to-chromium: 1.5.217
-      node-releases: 2.0.20
+      electron-to-chromium: 1.5.218
+      node-releases: 2.0.21
       update-browserslist-db: 1.1.3(browserslist@4.25.4)
 
   cac@6.7.14: {}
@@ -2264,7 +2276,12 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  electron-to-chromium@1.5.217: {}
+  electron-to-chromium@1.5.218: {}
+
+  emoji-picker-react@4.13.3(react@18.3.1):
+    dependencies:
+      flairup: 1.0.0
+      react: 18.3.1
 
   emoji-regex@8.0.0: {}
 
@@ -2370,6 +2387,8 @@ snapshots:
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
+
+  flairup@1.0.0: {}
 
   follow-redirects@1.15.11: {}
 
@@ -2652,7 +2671,7 @@ snapshots:
 
   nanoid@3.3.11: {}
 
-  node-releases@2.0.20: {}
+  node-releases@2.0.21: {}
 
   normalize-path@3.0.0: {}
 

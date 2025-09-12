@@ -3,6 +3,7 @@ import { getThreads, createThread, createThreadValidation } from '../controllers
 import { getMessages, sendMessage, markMessageAsRead, sendMessageValidation } from '../controllers/messageController.js';
 import { askAI, askAIValidation } from '../controllers/aiController.js';
 import { authenticateToken } from '../middleware/auth.js';
+import upload from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.post('/', createThreadValidation, createThread);
 
 // Message routes
 router.get('/:threadId/messages', getMessages);
-router.post('/:threadId/messages', sendMessageValidation, sendMessage);
+router.post('/:threadId/messages', upload.single('file'), sendMessageValidation, sendMessage);
 router.put('/:threadId/messages/:messageId/read', markMessageAsRead);
 
 // AI routes

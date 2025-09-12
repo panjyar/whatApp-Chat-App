@@ -57,6 +57,9 @@ model Message {
   content   String
   type      MessageType   @default(text)
   status    MessageStatus @default(sent)
+  mediaUrl  String?
+  mediaType String?
+  fileName  String?
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
@@ -92,6 +95,7 @@ enum MessageType {
   text
   assistant
   system
+  media
 }
 
 enum MessageStatus {
