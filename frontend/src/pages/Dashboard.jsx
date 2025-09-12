@@ -1,106 +1,143 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { MessageSquare, Users, Search, LogOut } from 'lucide-react';
+import { MessageSquare, Users, Search, MessageCircle, Bot } from 'lucide-react';
+import { threadAPI } from '../api/api';
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const [stats, setStats] = useState({
+    activeChats: 0,
+    contacts: 0,
+    messagesSent: 0,
+    aiMessages: 0
+  });
+
+  useEffect(() => {
+    // Fetch stats from the threads API
+    const fetchStats = async () => {
+      try {
+        const response = await threadAPI.getThreads();
+        const threads = response.data.threads;
+        
+        // Calculate stats
+        setStats({
+          activeChats: threads.length,
+          contacts: threads.length, // This should ideally come from contacts API
+          messagesSent: threads.reduce((total, thread) => 
+            total + (thread.lastMessage ? 1 : 0), 0),
+          aiMessages: threads.reduce((total, thread) => 
+            total + (thread.lastMessage?.type === 'assistant' ? 1 : 0), 0)
+        });
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const features = [
+    {
+      icon: MessageCircle,
+      title: "Real-time Chat",
+      description: "Send and receive messages instantly with your contacts",
+      color: "blue",
+      status: "Active"
+    },
+    {
+      icon: Users,
+      title: "Contact Management",
+      description: "Add and manage your contacts easily",
+      color: "green",
+      status: "Active"
+    },
+    {
+      icon: Bot,
+      title: "AI Assistant",
+      description: "Get help from our AI assistant in your conversations",
+      color: "indigo",
+      status: "Active"
+    },
+    {
+      icon: Search,
+      title: "Smart Search",
+      description: "Search through messages and find conversations quickly",
+      color: "purple",
+      status: "Active"
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">WhapApp Chat</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Welcome, {user?.name}</span>
-              <button
-                onClick={logout}
-                className="flex items-center space-x-1 text-sm text-gray-500 hover:text-gray-700"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="flex-1 bg-gray-50 p-8">
+      {/* Welcome Section */}
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-6">
+          Welcome back, {user?.name}!
+        </h1>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Chat Card */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <MessageSquare className="h-6 w-6 text-blue-600" />
+        {/* Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {features.map((feature, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className={`p-2 bg-${feature.color}-100 rounded-lg`}>
+                  <feature.icon className={`h-6 w-6 text-${feature.color}-600`} />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900">{feature.title}</h3>
               </div>
-              <h3 className="text-lg font-medium text-gray-900">Chats</h3>
-            </div>
-            <p className="mt-2 text-sm text-gray-600">
-              Start conversations with your contacts and send real-time messages.
-            </p>
-            <div className="mt-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Available
-              </span>
-            </div>
-          </div>
-
-          {/* Contacts Card */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Users className="h-6 w-6 text-green-600" />
+              <p className="text-sm text-gray-600 mb-4">
+                {feature.description}
+              </p>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span className="text-sm text-green-600">{feature.status}</span>
               </div>
-              <h3 className="text-lg font-medium text-gray-900">Contacts</h3>
             </div>
-            <p className="mt-2 text-sm text-gray-600">
-              Manage your contact list and add new people to chat with.
-            </p>
-            <div className="mt-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Available
-              </span>
-            </div>
-          </div>
-
-          {/* Search Card */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Search className="h-6 w-6 text-purple-600" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900">Search</h3>
-            </div>
-            <p className="mt-2 text-sm text-gray-600">
-              Search through your messages and find specific conversations.
-            </p>
-            <div className="mt-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Available
-              </span>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Quick Stats */}
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Stats</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">0</div>
-              <div className="text-sm text-gray-600">Active Chats</div>
+        {/* Stats Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-6">Activity Overview</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <MessageCircle className="h-5 w-5 text-blue-600" />
+                </div>
+                <span className="text-2xl font-bold text-blue-600">{stats.activeChats}</span>
+              </div>
+              <p className="mt-2 text-sm font-medium text-gray-600">Active Chats</p>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">0</div>
-              <div className="text-sm text-gray-600">Contacts</div>
+
+            <div className="bg-green-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Users className="h-5 w-5 text-green-600" />
+                </div>
+                <span className="text-2xl font-bold text-green-600">{stats.contacts}</span>
+              </div>
+              <p className="mt-2 text-sm font-medium text-gray-600">Contacts</p>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">0</div>
-              <div className="text-sm text-gray-600">Messages Sent</div>
+
+            <div className="bg-indigo-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="p-2 bg-indigo-100 rounded-lg">
+                  <MessageSquare className="h-5 w-5 text-indigo-600" />
+                </div>
+                <span className="text-2xl font-bold text-indigo-600">{stats.messagesSent}</span>
+              </div>
+              <p className="mt-2 text-sm font-medium text-gray-600">Messages Sent</p>
+            </div>
+
+            <div className="bg-purple-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Bot className="h-5 w-5 text-purple-600" />
+                </div>
+                <span className="text-2xl font-bold text-purple-600">{stats.aiMessages}</span>
+              </div>
+              <p className="mt-2 text-sm font-medium text-gray-600">AI Interactions</p>
             </div>
           </div>
         </div>

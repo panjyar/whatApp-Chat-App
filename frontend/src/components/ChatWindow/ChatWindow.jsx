@@ -152,84 +152,84 @@ export default function ChatWindow({ thread }) {
     );
   }
 
-  return (
-    <div className="h-full flex flex-col bg-white">
-      {/* Chat Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-        <div className="flex items-center space-x-3">
-          <Avatar
-            src={thread.otherUser.avatarUrl}
-            name={thread.otherUser.name}
-            size="md"
-            showStatus={true}
-            isOnline={false}
-          />
-          <div>
-            <h3 className="font-medium text-gray-900">{thread.otherUser.name}</h3>
-            <p className="text-sm text-gray-500">
-              {typing ? `${typing.name} is typing...` : 'Click to view profile'}
-            </p>
+    return (
+      <div className="h-full flex flex-col bg-white">
+        {/* Chat Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+          <div className="flex items-center space-x-3">
+            <Avatar
+              src={thread.otherUser.avatarUrl}
+              name={thread.otherUser.name}
+              size="md"
+              showStatus={true}
+              isOnline={false}
+            />
+            <div>
+              <h3 className="font-medium text-gray-900">{thread.otherUser.name}</h3>
+              <p className="text-sm text-gray-500">
+                {typing ? `${typing.name} is typing...` : 'Click to view profile'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setShowAIPrompt(!showAIPrompt)}
+              className={`p-2 rounded-lg transition-colors ${
+                showAIPrompt 
+                  ? 'bg-indigo-100 text-indigo-600' 
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+              }`}
+              title="Ask AI Assistant"
+            >
+              <Bot className="h-5 w-5" />
+            </button>
+            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <MoreVertical className="h-5 w-5" />
+            </button>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setShowAIPrompt(!showAIPrompt)}
-            className={`p-2 rounded-lg transition-colors ${
-              showAIPrompt 
-                ? 'bg-indigo-100 text-indigo-600' 
-                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-            }`}
-            title="Ask AI Assistant"
-          >
-            <Bot className="h-5 w-5" />
-          </button>
-          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-            <MoreVertical className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
-          </div>
-        ) : (
-          <>
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isOwn={message.sender.id === user.id}
-                onMarkAsRead={() => markMessageAsRead(message.id)}
-              />
-            ))}
-            {typing && (
-              <div className="flex items-center space-x-2 text-gray-500">
-                <Avatar src={typing.avatarUrl} name={typing.name} size="xs" />
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+            </div>
+          ) : (
+            <>
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isOwn={message.sender.id === user.id}
+                  onMarkAsRead={() => markMessageAsRead(message.id)}
+                />
+              ))}
+              {typing && (
+                <div className="flex items-center space-x-2 text-gray-500">
+                  <Avatar src={typing.avatarUrl} name={typing.name} size="xs" />
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
                 </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </>
-        )}
-      </div>
+              )}
+              <div ref={messagesEndRef} />
+            </>
+          )}
+        </div>
 
-      {/* Message Input */}
-      <div className="border-t border-gray-200 bg-white">
-        <MessageInput
-          onSendMessage={handleSendMessage}
-          onTyping={handleTyping}
-          showAIPrompt={showAIPrompt}
-          onAIRequest={handleAIRequest}
-          onCloseAI={() => setShowAIPrompt(false)}
-        />
+        {/* Message Input */}
+        <div className="border-t border-gray-200 bg-white">
+          <MessageInput
+            onSendMessage={handleSendMessage}
+            onTyping={handleTyping}
+            showAIPrompt={showAIPrompt}
+            onAIRequest={handleAIRequest}
+            onCloseAI={() => setShowAIPrompt(false)}
+          />
+        </div>
       </div>
-    </div>
-  );
+    );
 }

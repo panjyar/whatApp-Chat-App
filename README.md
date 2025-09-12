@@ -1,6 +1,6 @@
 # WhapApp Chat App
 
-A WhatsApp-style real-time messaging app with React frontend, Node.js/Express backend, PostgreSQL, Socket.IO, JWT auth, message threads, contacts, search, and an optional AI assistant.
+A real-time chat application built with React, Node.js, and PostgreSQL, featuring instant messaging, user authentication, and contact management. This implementation uses local PostgreSQL with pgAdmin for database management.
 
 ## 🚀 Features
 
@@ -53,22 +53,27 @@ A WhatsApp-style real-time messaging app with React frontend, Node.js/Express ba
 
 ### Prerequisites
 - Node.js 18+
-- Docker + Docker Compose
-- npm or yarn
+- PostgreSQL 13+ (installed locally)
+- pgAdmin 4
+- npm or pnpm
 
-### Setup
+### Database Setup
+
+1. **Configure PostgreSQL**
+   - Install PostgreSQL and pgAdmin if not already installed
+   - Open pgAdmin and connect to your PostgreSQL server
+   - Create a new database:
+     ```sql
+     CREATE DATABASE whatapp_chat;
+     ```
+   - Note your connection details (host, port, database name, username, password)
+
+### Application Setup
 
 1. **Clone and setup environment**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/your-username/WhapApp-Chat-App.git
    cd WhapApp-Chat-App
-   cp .env.example .env
-   # Edit .env with your database credentials
-   ```
-
-2. **Start PostgreSQL**
-   ```bash
-   docker-compose up -d
    ```
 
 3. **Setup Backend**
@@ -155,17 +160,28 @@ cd frontend
 npm test
 ```
 
-## 🐳 Docker Deployment
+## � Database Management
 
-### Development
-```bash
-docker-compose up -d
-```
+### Using pgAdmin
+1. Open pgAdmin 4
+2. Connect to your PostgreSQL server
+3. Navigate to your database (whatapp_chat)
+4. You can:
+   - View tables and their relationships
+   - Execute SQL queries
+   - Monitor database performance
+   - Manage backups
 
-### Production (coming soon)
-- Backend Dockerfile included
-- Frontend Dockerfile included
-- Environment variables configured
+### Backup and Restore
+1. **Creating a backup**
+   ```bash
+   pg_dump -U your_username -d whatapp_chat > backup.sql
+   ```
+
+2. **Restoring from backup**
+   ```bash
+   psql -U your_username -d whatapp_chat < backup.sql
+   ```
 
 ## 🔒 Security Features
 
