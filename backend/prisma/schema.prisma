@@ -1,6 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+// backend/prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,22 +9,22 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  password    String
-  avatarUrl   String?
-  lastSeen    DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  avatarUrl String?
+  lastSeen  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
-  threadsA    Thread[] @relation("userA")
-  threadsB    Thread[] @relation("userB")
-  messages    Message[]
-  contacts    Contact[] @relation("owner")
-  contactOf   Contact[] @relation("contact")
-  
+  sentMessages     Message[] @relation("MessageSender")
+  threadsAsUserA   Thread[]  @relation("ThreadUserA")
+  threadsAsUserB   Thread[]  @relation("ThreadUserB")
+  ownedContacts    Contact[] @relation("ContactOwner")
+  contactRelations Contact[] @relation("ContactUser")
+
   @@map("users")
 }
 
@@ -37,47 +35,67 @@ model Thread {
   lastMessageId Int?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
+
   // Relations
-  userA         User     @relation("userA", fields: [userAId], references: [id], onDelete: Cascade)
-  userB         User     @relation("userB", fields: [userBId], references: [id], onDelete: Cascade)
-  messages      Message[]
-  lastMessage   Message? @relation("ThreadLastMessage", fields: [lastMessageId], references: [id])
-  
+  userA       User      @relation("ThreadUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB       User      @relation("ThreadUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  lastMessage Message?  @relation("ThreadLastMessage", fields: [lastMessageId], references: [id])
+  messages    Message[] @relation("ThreadMessages")
+
+  // Indexes
+  @@index([userAId])
+  @@index([userBId])
+  @@index([updatedAt])
   @@unique([userAId, userBId])
   @@map("threads")
 }
 
 model Message {
-  id         Int      @id @default(autoincrement())
-  threadId   Int
-  senderId   Int
-  content    String
-  type       String   @default("text") // text | assistant
-  status     String   @default("sent") // sent | delivered | read
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
+  id        Int           @id @default(autoincrement())
+  threadId  Int
+  senderId  Int
+  content   String
+  type      MessageType   @default(text)
+  status    MessageStatus @default(sent)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
   // Relations
-  thread     Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  sender     User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  threadLastMessage Thread[] @relation("ThreadLastMessage")
-  
-  @@index([threadId, createdAt])
+  thread Thread @relation("ThreadMessages", fields: [threadId], references: [id], onDelete: Cascade)
+  sender User   @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  // Reverse relation for lastMessage
+  threadAsLast Thread[] @relation("ThreadLastMessage")
+
+  // Indexes
+  @@index([threadId])
+  @@index([createdAt])
+  @@index([senderId])
   @@map("messages")
 }
 
 model Contact {
-  id        Int      @id @default(autoincrement())
   ownerId   Int
   contactId Int
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+
   // Relations
-  owner     User     @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
-  contact   User     @relation("contact", fields: [contactId], references: [id], onDelete: Cascade)
-  
-  @@unique([ownerId, contactId])
+  owner   User @relation("ContactOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  contact User @relation("ContactUser", fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@id([ownerId, contactId])
+  @@index([ownerId])
   @@map("contacts")
+}
+
+enum MessageType {
+  text
+  assistant
+  system
+}
+
+enum MessageStatus {
+  sent
+  delivered
+  read
 }

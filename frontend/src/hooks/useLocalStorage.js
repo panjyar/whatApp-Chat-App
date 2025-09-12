@@ -9,7 +9,7 @@ import Dashboard from './Dashboard';
 // Import all components
 import Sidebar from '../components/Sidebar/Sidebar';
 import Topbar from '../components/Topbar/Topbar';
-import ThreadList from '../components/ThreadList/ThreadListItem';
+import ThreadList from '../components/ThreadList/ThreadList';
 import ContactsList from '../components/Contacts/ContactsList';
 import ChatWindow from '../components/ChatWindow/ChatWindow';
 
