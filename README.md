@@ -72,7 +72,7 @@ A real-time chat application built with React, Node.js, and PostgreSQL, featurin
 
 1. **Clone and setup environment**
    ```bash
-   git clone https://github.com/your-username/WhapApp-Chat-App.git
+   git clone https://github.com/panjyar/whatApp-Chat-App.git
    cd WhapApp-Chat-App
    ```
 
@@ -98,11 +98,6 @@ A real-time chat application built with React, Node.js, and PostgreSQL, featurin
    - Backend API: http://localhost:4000
    - Database: localhost:5432
 
-### Demo Users
-After seeding, you can login with:
-- `alice@example.com` / `password123`
-- `bob@example.com` / `password123`
-- `charlie@example.com` / `password123`
 
 ## 📚 API Documentation
 
@@ -213,18 +208,6 @@ VITE_API_URL=http://localhost:4000/api/v1
 VITE_WS_URL=http://localhost:4000
 ```
 
-## 🚀 Deployment
-
-### Railway/Render/Heroku
-1. Set environment variables
-2. Deploy backend with `npm run start`
-3. Deploy frontend with `npm run build` + static hosting
-4. Configure database connection
-
-### Scaling Notes
-- Use Redis adapter for Socket.IO in production
-- Implement horizontal scaling for backend instances
-- Consider message queuing for high volume
 
 ## 🤝 Contributing
 
