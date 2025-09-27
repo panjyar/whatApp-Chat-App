@@ -1,4 +1,4 @@
-// backend/prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
+//Purpose: Database schema definition and configuration
 model User {
   id        Int      @id @default(autoincrement())
   name      String

@@ -1,3 +1,9 @@
+-- CreateEnum
+CREATE TYPE "MessageType" AS ENUM ('text', 'assistant', 'system', 'media');
+
+-- CreateEnum
+CREATE TYPE "MessageStatus" AS ENUM ('sent', 'delivered', 'read');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
@@ -5,7 +11,7 @@ CREATE TABLE "users" (
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "avatarUrl" TEXT,
-    "lastSeen" TIMESTAMP(3),
+    "lastSeen" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -30,8 +36,11 @@ CREATE TABLE "messages" (
     "threadId" INTEGER NOT NULL,
     "senderId" INTEGER NOT NULL,
     "content" TEXT NOT NULL,
-    "type" TEXT NOT NULL DEFAULT 'text',
-    "status" TEXT NOT NULL DEFAULT 'sent',
+    "type" "MessageType" NOT NULL DEFAULT 'text',
+    "status" "MessageStatus" NOT NULL DEFAULT 'sent',
+    "mediaUrl" TEXT,
+    "mediaType" TEXT,
+    "fileName" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -40,26 +49,39 @@ CREATE TABLE "messages" (
 
 -- CreateTable
 CREATE TABLE "contacts" (
-    "id" SERIAL NOT NULL,
     "ownerId" INTEGER NOT NULL,
     "contactId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "contacts_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "contacts_pkey" PRIMARY KEY ("ownerId","contactId")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
+CREATE INDEX "threads_userAId_idx" ON "threads"("userAId");
+
+-- CreateIndex
+CREATE INDEX "threads_userBId_idx" ON "threads"("userBId");
+
+-- CreateIndex
+CREATE INDEX "threads_updatedAt_idx" ON "threads"("updatedAt");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "threads_userAId_userBId_key" ON "threads"("userAId", "userBId");
 
 -- CreateIndex
-CREATE INDEX "messages_threadId_createdAt_idx" ON "messages"("threadId", "createdAt");
+CREATE INDEX "messages_threadId_idx" ON "messages"("threadId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "contacts_ownerId_contactId_key" ON "contacts"("ownerId", "contactId");
+CREATE INDEX "messages_createdAt_idx" ON "messages"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "messages_senderId_idx" ON "messages"("senderId");
+
+-- CreateIndex
+CREATE INDEX "contacts_ownerId_idx" ON "contacts"("ownerId");
 
 -- AddForeignKey
 ALTER TABLE "threads" ADD CONSTRAINT "threads_userAId_fkey" FOREIGN KEY ("userAId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
